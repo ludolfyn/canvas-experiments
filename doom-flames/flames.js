@@ -109,13 +109,13 @@ function genMatrix(matrixOptions) {
 
 let lastTime = 0
 
-function gameLoop(timestamp, canvas, matrix) {
+function gameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	window.gameLoopId = requestAnimationFrame((time) => {
-		gameLoop(time, canvas, matrix)
+		gameLoop(time, canvas, matrix, flameOptions)
 	})
 
 	// Throttle frames
-	const fps = 10
+	const { fps } = flameOptions
 	const interval = 1000 / fps
 	lastTime = lastTime || timestamp
 	const delta = timestamp - lastTime
@@ -144,7 +144,7 @@ function gameLoop(timestamp, canvas, matrix) {
 	})
 }
 
-function initCanvas(matrix) {
+function initCanvas(matrix, flameOptions) {
 	console.log('starting loop')
 
 	if (window.gameLoopId) {
@@ -156,15 +156,16 @@ function initCanvas(matrix) {
 	const ctx = canvas.getContext('2d')
 	ctx.imageSmoothingEnabled = false
 
-	gameLoop(null, canvas, matrix)
+	gameLoop(null, canvas, matrix, flameOptions)
 }
 
 const flameOptions = {
-	pxSize: 8,
+	pxSize: 4,
 	rowsAmount: 80,
 	colsAmount: 60,
 	startPos: 100,
+	fps: 10,
 	color: '#1100ff'
 }
 const matrix = genMatrix(flameOptions) // Light fire
-initCanvas(matrix) // Burn
+initCanvas(matrix, flameOptions) // Burn
