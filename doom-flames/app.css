@@ -1,11 +1,18 @@
 body {
+  height: 100vh;
+  margin: 0;
   background-color: #000;
 }
 
-canvas#c {
-  width: 512px;
-  height: 384px;
+.canvas-wrap {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.canvas-wrap canvas#c {
+  display: block;
   image-rendering: pixelated;
-  /* border: 2px solid black; */
+  border: 2px solid rgb(83, 72, 72);
   transform: rotate(180deg);
 }/*# sourceMappingURL=app.css.map */

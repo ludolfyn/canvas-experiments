@@ -12,24 +12,17 @@ class Pixel {
 	colsAmount = 1
 	currentCol = 1
 
-	constructor(
-		posVector = {
-			posX: 0,
-			posY: 0
-		},
-		canvas = null,
-		colorGradientData = { color: '#ffa500', steps: 24 }
-	) {
+	constructor(posVector, rowIndex, colIndex, pxSize, colorGradientData = { color: '#ffa500', steps: 16 }) {
 		this.posX = posVector.posX
 		this.posY = posVector.posY
-		this.canvas = canvas
+		this.width = pxSize
+		this.height = pxSize
+		this.currentRow = rowIndex + 1
+		this.currentCol = colIndex + 1
 		this.color = colorGradientData.color
 		this.colorGradient = this.genGradient(colorGradientData.color, colorGradientData.steps)
-		this.currentColor = this.colorGradient[0]
-		this.rowsAmount = canvas.height / this.height
-		this.currentRow = (this.posY / canvas.height) * this.rowsAmount + 1
-		this.colsAmount = canvas.width / this.width
-		this.currentCol = (this.posX / canvas.width) * this.colsAmount + 1
+		this.colorIndex = this.colorGradient.length - 1
+		this.currentColor = this.colorGradient[this.colorIndex]
 	}
 
 	updateColor(matrix) {
@@ -90,18 +83,22 @@ class Pixel {
 	}
 }
 
-function genMatrix(pxSize = 16) {
+function genMatrix(matrixOptions) {
 	const matrix = []
+	const { pxSize, rowsAmount, colsAmount, startPos, color } = matrixOptions
 	const canvas = document.querySelector('canvas')
-	const colsAmount = canvas.width / pxSize
-	const rowsAmount = canvas.height / pxSize
+	// const colsAmount = canvas.width / pxSize
+	// const rowsAmount = canvas.height / pxSize
 
 	for (let rowIndex = 0; rowIndex < rowsAmount; rowIndex++) {
 		const row = []
 		for (let colIndex = 0; colIndex < colsAmount; colIndex++) {
-			const posX = pxSize * colIndex
+			const posX = pxSize * colIndex + startPos
 			const posY = pxSize * rowIndex
-			const pixel = new Pixel({ posX, posY }, canvas)
+			const pixel = new Pixel({ posX, posY }, rowIndex, colIndex, pxSize, {
+				steps: rowsAmount - 16,
+				color: color
+			})
 			row.push(pixel)
 		}
 		matrix.push(row)
@@ -139,9 +136,9 @@ function gameLoop(timestamp, canvas, matrix) {
 			ctx.fillStyle = px.currentColor
 			ctx.fillRect(px.posX, px.posY, px.width, px.height)
 
-			// //border
-			// ctx.strokeStyle = '#000000'
-			// ctx.lineWidth = 1
+			// border
+			// ctx.strokeStyle = '#ffffff'
+			// ctx.lineWidth = 0.2
 			// ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
 		})
 	})
@@ -162,5 +159,12 @@ function initCanvas(matrix) {
 	gameLoop(null, canvas, matrix)
 }
 
-const matrix = genMatrix(16) // Light fire
+const flameOptions = {
+	pxSize: 8,
+	rowsAmount: 80,
+	colsAmount: 60,
+	startPos: 100,
+	color: '#1100ff'
+}
+const matrix = genMatrix(flameOptions) // Light fire
 initCanvas(matrix) // Burn

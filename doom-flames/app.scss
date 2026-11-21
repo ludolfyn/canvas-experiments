@@ -1,11 +1,21 @@
 body {
+	height: 100vh;
+	margin: 0;
 	background-color: #000;
 }
 
-canvas#c {
-	width: 512px;
-	height: 384px;
-	image-rendering: pixelated;
-	/* border: 2px solid black; */
-	transform: rotate(180deg);
+.canvas-wrap {
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	canvas#c {
+		// width: 100%;
+		// height: calc(100vh - 4px);
+		display: block;
+		image-rendering: pixelated;
+		border: 2px solid rgb(83, 72, 72);
+		transform: rotate(180deg);
+	}
 }
