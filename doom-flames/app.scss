@@ -1,0 +1,11 @@
+body {
+	background-color: #000;
+}
+
+canvas#c {
+	width: 512px;
+	height: 384px;
+	image-rendering: pixelated;
+	/* border: 2px solid black; */
+	transform: rotate(180deg);
+}
