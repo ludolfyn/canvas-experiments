@@ -28,11 +28,21 @@ class Pixel {
 		this.colorGradient = this.genGradient(color, gradientStepsAmount)
 		this.colorIndex = this.colorGradient.length - 1
 		this.currentColor = this.colorGradient[this.colorIndex]
+		this.rowsAmount = rowsAmount
+		this.colsAmount = colsAmount
 	}
 
 	updateColor(matrix) {
 		const last = this.colorGradient.length - 1
 		const shouldUpddate = Math.floor(Math.random() * 3) - 1
+
+		// Kill pixels on side of matrix to account for wind
+		const quarterColsAmount = this.colsAmount / 8
+		if (this.currentCol < quarterColsAmount || this.currentCol > this.colsAmount - quarterColsAmount) {
+			// this.colorIndex = this.gradientStepsAmount - 1 //this.rowsAmount - 1
+			this.currentColor = '#000000'
+			return
+		}
 
 		// 1/3 chance for the pixel to update
 		// to make flame grow slower and create sparks
@@ -124,9 +134,14 @@ function genMatrix(matrixOptions) {
 	return matrix
 }
 
-function gameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
+function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
+	// if (timestamp > 500) {
+	// 	stopGameLoop()
+	// 	return
+	// }
+
 	window.gameLoopId = requestAnimationFrame((time) => {
-		gameLoop(time, canvas, matrix, flameOptions)
+		runGameLoop(time, canvas, matrix, flameOptions)
 	})
 
 	// Throttle frames
@@ -134,7 +149,7 @@ function gameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	const interval = 1000 / fps
 	lastTime = lastTime || timestamp
 	const delta = timestamp - lastTime
-	if (delta < interval) {
+	if (fps && delta < interval) {
 		return
 	}
 
@@ -159,19 +174,23 @@ function gameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	})
 }
 
-function initCanvas(matrix, flameOptions) {
-	console.log('starting loop')
-
+function stopGameLoop() {
 	if (window.gameLoopId) {
 		cancelAnimationFrame(window.gameLoopId)
 		window.gameLoopId = null
 	}
+}
+
+function initCanvas(matrix, flameOptions) {
+	console.log('starting loop')
+
+	stopGameLoop()
 
 	const canvas = document.getElementById('c')
 	const ctx = canvas.getContext('2d')
 	ctx.imageSmoothingEnabled = false
 
-	gameLoop(null, canvas, matrix, flameOptions)
+	runGameLoop(null, canvas, matrix, flameOptions)
 }
 
 let lastTime = 0
@@ -180,8 +199,8 @@ const flameOptions = {
 	rowsAmount: 100,
 	colsAmount: 200,
 	startPos: 100,
-	fps: 80,
-	windSpeed: 1,
+	fps: 0,
+	windSpeed: 2,
 	color: '#ffa500'
 }
 const matrix = genMatrix(flameOptions) // Light fire
