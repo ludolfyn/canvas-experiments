@@ -12,21 +12,32 @@ class Pixel {
 	colsAmount = 1
 	currentCol = 1
 
-	constructor(posVector, rowIndex, colIndex, pxSize, colorGradientData = { color: '#ffa500', steps: 16 }) {
-		this.posX = posVector.posX
-		this.posY = posVector.posY
+	constructor(flameOptions) {
+		const { posX, posY, pxSize, rowIndex, colIndex, rowsAmount, colsAmount, color } = flameOptions
+		const gradientStepsAmount = rowsAmount
+
+		this.posX = posX
+		this.posY = posY
 		this.width = pxSize
 		this.height = pxSize
 		this.currentRow = rowIndex + 1
 		this.currentCol = colIndex + 1
-		this.color = colorGradientData.color
-		this.colorGradient = this.genGradient(colorGradientData.color, colorGradientData.steps)
+		this.color = color
+		this.colorGradient = this.genGradient(color, gradientStepsAmount)
 		this.colorIndex = this.colorGradient.length - 1
 		this.currentColor = this.colorGradient[this.colorIndex]
 	}
 
 	updateColor(matrix) {
 		const last = this.colorGradient.length - 1
+		const topOfFlamesArea = this.rowsAmount - this.rowsAmount / 4
+		const shouldUpddate = Math.floor(Math.random() * 3) - 1
+
+		// 1/3 chance for the pixel to update
+		// to make flame grow slower and create sparks
+		if (shouldUpddate !== 0) {
+			return
+		}
 
 		if (this.currentRow === 1) {
 			// Choose one of the first 3 colors to create slight flicker at the source
@@ -39,6 +50,10 @@ class Pixel {
 			const neighbourIndex = below?.colorIndex ?? last
 			const cooledIndex = neighbourIndex + decay
 			this.colorIndex = Math.min(cooledIndex, last)
+
+			// if (true) {
+			// 	//..
+			// }
 		}
 
 		this.currentColor = this.colorGradient[this.colorIndex]
@@ -83,22 +98,41 @@ class Pixel {
 	}
 }
 
+class Spark {
+	constructor(posX, posY, size, color) {
+		this.posX = posX
+		this.posY = posY
+		this.size = size / 2
+		this.color = color
+		this.speedY = size * (0.5 + Math.random()) // upward (increasing posY)
+		this.speedX = (Math.random() - 0.5) * size // sideways drift
+		this.maxLife = 8 + Math.floor(Math.random() * 8) // in frames
+		this.life = this.maxLife
+	}
+
+	update() {
+		this.posX += this.speedX
+		this.posY += this.speedY
+		this.life--
+	}
+}
+
 function genMatrix(matrixOptions) {
 	const matrix = []
 	const { pxSize, rowsAmount, colsAmount, startPos, color } = matrixOptions
 	const canvas = document.querySelector('canvas')
-	// const colsAmount = canvas.width / pxSize
-	// const rowsAmount = canvas.height / pxSize
 
 	for (let rowIndex = 0; rowIndex < rowsAmount; rowIndex++) {
 		const row = []
 		for (let colIndex = 0; colIndex < colsAmount; colIndex++) {
 			const posX = pxSize * colIndex + startPos
 			const posY = pxSize * rowIndex
-			const pixel = new Pixel({ posX, posY }, rowIndex, colIndex, pxSize, {
-				steps: rowsAmount - 16,
-				color: color
-			})
+			flameOptions.posX = posX
+			flameOptions.posY = posY
+			flameOptions.rowIndex = rowIndex
+			flameOptions.colIndex = colIndex
+			const pixel = new Pixel(flameOptions)
+
 			row.push(pixel)
 		}
 		matrix.push(row)
@@ -142,6 +176,39 @@ function gameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 			// ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
 		})
 	})
+
+	// const sparkMin = 6 // hottest colour index that can emit a spark
+	// const sparkMax = 16 // coolest colour index that can emit a spark
+	// const sparkChance = 0.03
+
+	// // Spawn at flame tips
+	// matrix.forEach((row, rowIndex) => {
+	// 	row.forEach((px) => {
+	// 		const above = matrix[rowIndex + 1]?.[px.currentCol - 1]
+	// 		const isTip = above && above.colorIndex > sparkMax
+	// 		const inBand = px.colorIndex >= sparkMin && px.colorIndex <= sparkMax
+
+	// 		if (isTip && inBand && Math.random() < sparkChance) {
+	// 			sparks.push(new Spark(px.posX, px.posY, px.width, px.currentColor))
+	// 		}
+	// 	})
+	// })
+
+	// // Update, draw and remove expired sparks
+	// for (let i = sparks.length - 1; i >= 0; i--) {
+	// 	const spark = sparks[i]
+	// 	spark.update()
+
+	// 	if (spark.life <= 0 || spark.posY > canvas.height) {
+	// 		sparks.splice(i, 1)
+	// 		continue
+	// 	}
+
+	// 	ctx.globalAlpha = spark.life / spark.maxLife
+	// 	ctx.fillStyle = spark.color // '#ffffff'
+	// 	ctx.fillRect(Math.round(spark.posX), Math.round(spark.posY) + 100, flameOptions.pxSize, flameOptions.pxSize)
+	// }
+	// ctx.globalAlpha = 1
 }
 
 function initCanvas(matrix, flameOptions) {
@@ -159,13 +226,15 @@ function initCanvas(matrix, flameOptions) {
 	gameLoop(null, canvas, matrix, flameOptions)
 }
 
+const sparks = []
 const flameOptions = {
 	pxSize: 4,
-	rowsAmount: 80,
-	colsAmount: 60,
+	rowsAmount: 100,
+	colsAmount: 200,
 	startPos: 100,
-	fps: 10,
-	color: '#1100ff'
+	fps: 60,
+	wind: 0,
+	color: '#ffa500'
 }
 const matrix = genMatrix(flameOptions) // Light fire
 initCanvas(matrix, flameOptions) // Burn
