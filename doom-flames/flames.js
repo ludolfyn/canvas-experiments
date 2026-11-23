@@ -35,14 +35,35 @@ class Pixel {
 	updateColor(matrix) {
 		const last = this.colorGradient.length - 1
 		const shouldUpddate = Math.floor(Math.random() * 3) - 1
+		const matrixOffsetSides = (this.colsAmount / 6) * this.windSpeed
 
 		// Kill pixels on side of matrix to account for wind
-		const quarterColsAmount = this.colsAmount / 8
-		if (this.currentCol < quarterColsAmount || this.currentCol > this.colsAmount - quarterColsAmount) {
-			// this.colorIndex = this.gradientStepsAmount - 1 //this.rowsAmount - 1
-			this.currentColor = '#000000'
+		if (this.currentCol < matrixOffsetSides && this.windSpeed) {
+			if (!this.windSpeed) {
+				this.colorIndex = last
+			} else if (shouldUpddate >= 1) {
+				const minusOneToOne = Math.floor(Math.random() * 3) - 1
+				const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
+
+				const decay = Math.floor(Math.random() * 3)
+				const offset = Math.floor(Math.random() * offsetRange) - 1
+				const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
+
+				const neighbourIndex = below?.colorIndex ?? last
+				const cooledIndex = neighbourIndex + decay
+
+				this.colorIndex = Math.min(cooledIndex, last)
+			}
+
+			this.currentColor = this.colorGradient[this.colorIndex]
 			return
 		}
+
+		// if (this.currentCol > this.colsAmount - matrixOffsetSides) {
+		// 	this.colorIndex = this.colorGradient.length - 1
+		// 	this.currentColor = this.colorGradient[this.colorIndex]
+		// 	return
+		// }
 
 		// 1/3 chance for the pixel to update
 		// to make flame grow slower and create sparks
@@ -57,10 +78,10 @@ class Pixel {
 		} else {
 			// Creates wind effect (apply windSpeed prop)
 			const minusOneToOne = Math.floor(Math.random() * 3) - 1 // -1, 0, 1
-			const chanceOfOffset = !minusOneToOne ? 3 : 3 + this.windSpeed
+			const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
 
 			const decay = Math.floor(Math.random() * 3) // 0 to 2
-			const offset = Math.floor(Math.random() * chanceOfOffset) - 1 // -1, 0, 1
+			const offset = Math.floor(Math.random() * offsetRange) - 1 // -1, 0, 1
 			const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
 
 			const neighbourIndex = below?.colorIndex ?? last
@@ -196,11 +217,11 @@ function initCanvas(matrix, flameOptions) {
 let lastTime = 0
 const flameOptions = {
 	pxSize: 4,
-	rowsAmount: 100,
-	colsAmount: 200,
-	startPos: 100,
+	rowsAmount: 128,
+	colsAmount: 256,
+	startPos: 0,
 	fps: 0,
-	windSpeed: 2,
+	windSpeed: 1,
 	color: '#ffa500'
 }
 const matrix = genMatrix(flameOptions) // Light fire
