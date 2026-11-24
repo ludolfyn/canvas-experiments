@@ -36,22 +36,28 @@ class Pixel {
 		const last = this.colorGradient.length - 1
 		const shouldUpddate = Math.floor(Math.random() * 3) - 1
 		const matrixOffsetSides = (this.colsAmount / 6) * this.windSpeed
+		const grabColorIndexFromBelow = () => {
+			const minusOneToOne = Math.floor(Math.random() * 3) - 1
+			const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
 
-		// Kill pixels on side of matrix to account for wind
+			const decay = Math.floor(Math.random() * 3)
+			const offset = Math.floor(Math.random() * offsetRange) - 1
+			const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
+
+			const neighbourIndex = below?.colorIndex ?? last
+			const cooledIndex = neighbourIndex + decay
+
+			return cooledIndex
+		}
+
+		// Create offset on side of matrix
 		if (this.currentCol < matrixOffsetSides && this.windSpeed) {
 			if (!this.windSpeed) {
+				// Fill offset pixels with black (if no wind)
 				this.colorIndex = last
 			} else if (shouldUpddate >= 1) {
-				const minusOneToOne = Math.floor(Math.random() * 3) - 1
-				const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
-
-				const decay = Math.floor(Math.random() * 3)
-				const offset = Math.floor(Math.random() * offsetRange) - 1
-				const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
-
-				const neighbourIndex = below?.colorIndex ?? last
-				const cooledIndex = neighbourIndex + decay
-
+				// Fill offset with continuation of flame
+				const cooledIndex = grabColorIndexFromBelow()
 				this.colorIndex = Math.min(cooledIndex, last)
 			}
 
@@ -77,15 +83,7 @@ class Pixel {
 			this.colorIndex = Math.floor(Math.random() * 3)
 		} else {
 			// Creates wind effect (apply windSpeed prop)
-			const minusOneToOne = Math.floor(Math.random() * 3) - 1 // -1, 0, 1
-			const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
-
-			const decay = Math.floor(Math.random() * 3) // 0 to 2
-			const offset = Math.floor(Math.random() * offsetRange) - 1 // -1, 0, 1
-			const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
-
-			const neighbourIndex = below?.colorIndex ?? last
-			const cooledIndex = neighbourIndex + decay
+			const cooledIndex = grabColorIndexFromBelow()
 			this.colorIndex = Math.min(cooledIndex, last)
 		}
 
@@ -155,6 +153,7 @@ function genMatrix(matrixOptions) {
 	return matrix
 }
 
+let lastTime = 0
 function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	// if (timestamp > 500) {
 	// 	stopGameLoop()
@@ -177,7 +176,7 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	lastTime = timestamp
 
 	const ctx = canvas.getContext('2d')
-	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	// ctx.clearRect(0, 0, canvas.width, canvas.height)
 	matrix.forEach((row, rowIndex) => {
 		row.forEach((px) => {
 			// Update px color
@@ -188,8 +187,8 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 			ctx.fillRect(px.posX, px.posY, px.width, px.height)
 
 			// border
-			ctx.strokeStyle = '#ffffff'
-			ctx.lineWidth = 0.2
+			// ctx.strokeStyle = '#ffffff'
+			// ctx.lineWidth = 0.2
 			// ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
 		})
 	})
@@ -214,15 +213,4 @@ function initCanvas(matrix, flameOptions) {
 	runGameLoop(null, canvas, matrix, flameOptions)
 }
 
-let lastTime = 0
-const flameOptions = {
-	pxSize: 4,
-	rowsAmount: 128,
-	colsAmount: 256,
-	startPos: 0,
-	fps: 0,
-	windSpeed: 1,
-	color: '#ffa500'
-}
-const matrix = genMatrix(flameOptions) // Light fire
-initCanvas(matrix, flameOptions) // Burn
+export { Pixel, genMatrix, initCanvas, runGameLoop, stopGameLoop }

@@ -2,6 +2,45 @@ body {
   height: 100vh;
   margin: 0;
   background-color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.controls {
+  width: 300px;
+  background-color: #000;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  cursor: grab;
+}
+.controls.dragging {
+  cursor: grabbing;
+}
+.controls .title {
+  padding: 20px 20px;
+  background-color: #121212;
+}
+.controls .title div {
+  font-size: 16px;
+}
+.controls .body {
+  padding: 20px 20px;
+}
+.controls .input-wrap {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.controls .input-wrap label {
+  color: #7d7c7c;
+}
+.controls .input-wrap input {
+  cursor: pointer;
 }
 
 .canvas-wrap {

@@ -8,10 +8,23 @@
     <title>Doom flames</title>
 </head>
 <body>
+    <div class="controls">
+        <div class="title">
+            <div>Controls</div>
+        </div>
+        <div class="body">
+            <div class="input-wrap">
+            <label>Flame size</label>
+                <input type="range" min="0" max="100" step="1" value="50" data-key="rowsAmount">
+            </div>
+        </div>
+    </div>
     <div class="canvas-wrap">
         <canvas id="c" width="1024" height="768"></canvas>
     </div>    
-    
-    <script type="text/javascript" src="./flames.js"></script>
+
+    <script type="module" src="./flames.js"></script>
+    <script type="module" src="./controls.js"></script>
+    <script type="module" src="./app.js"></script>
 </body>
 </html>
