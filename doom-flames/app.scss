@@ -20,14 +20,36 @@ body {
 
 	&.dragging {
 		cursor: grabbing;
+
+		.input-wrap {
+			label {
+				cursor: grabbing;
+			}
+		}
 	}
 
 	.title {
 		padding: 20px 20px;
 		background-color: #121212;
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
 
 		div {
 			font-size: 16px;
+		}
+
+		button {
+			padding: 2px 4px;
+			background-color: transparent;
+			border: 1px solid #fff;
+			border-radius: 3px;
+			color: #777;
+			cursor: pointer;
+
+			&:hover {
+				color: #fff;
+			}
 		}
 	}
 
@@ -38,10 +60,20 @@ body {
 	.input-wrap {
 		display: flex;
 		flex-direction: column;
-		cursor: pointer;
 
 		label {
+			margin-top: 5px;
 			color: #7d7c7c;
+			font-size: 14px;
+			cursor: grab;
+		}
+
+		&:first-child label {
+			margin-top: 0px;
+		}
+
+		&:last-child label {
+			margin-bottom: 4px;
 		}
 
 		input {

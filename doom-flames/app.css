@@ -21,12 +21,29 @@ body {
 .controls.dragging {
   cursor: grabbing;
 }
+.controls.dragging .input-wrap label {
+  cursor: grabbing;
+}
 .controls .title {
   padding: 20px 20px;
   background-color: #121212;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 .controls .title div {
   font-size: 16px;
+}
+.controls .title button {
+  padding: 2px 4px;
+  background-color: transparent;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  color: #777;
+  cursor: pointer;
+}
+.controls .title button:hover {
+  color: #fff;
 }
 .controls .body {
   padding: 20px 20px;
@@ -34,10 +51,18 @@ body {
 .controls .input-wrap {
   display: flex;
   flex-direction: column;
-  cursor: pointer;
 }
 .controls .input-wrap label {
+  margin-top: 5px;
   color: #7d7c7c;
+  font-size: 14px;
+  cursor: grab;
+}
+.controls .input-wrap:first-child label {
+  margin-top: 0px;
+}
+.controls .input-wrap:last-child label {
+  margin-bottom: 4px;
 }
 .controls .input-wrap input {
   cursor: pointer;

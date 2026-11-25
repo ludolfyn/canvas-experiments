@@ -31,4 +31,18 @@ function initModalDrag(modal) {
 	})
 }
 
-export { initModalDrag }
+function resetControls(genMatrix) {
+	// window.flameOptions = {
+	// 	pxSize: 4,
+	// 	rowsAmount: 128,
+	// 	colsAmount: 256,
+	// 	startPos: 0,
+	// 	fps: 0,
+	// 	windSpeed: 2,
+	// 	color: '#ffa500'
+	// }
+	// window.matrix = genMatrix(window.flameOptions)
+	window.location.reload()
+}
+
+export { initModalDrag, resetControls }

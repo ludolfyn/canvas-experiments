@@ -161,7 +161,7 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	// }
 
 	window.gameLoopId = requestAnimationFrame((time) => {
-		runGameLoop(time, canvas, matrix, flameOptions)
+		runGameLoop(time, canvas, window.matrix, window.flameOptions)
 	})
 
 	// Throttle frames
@@ -176,7 +176,9 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 	lastTime = timestamp
 
 	const ctx = canvas.getContext('2d')
-	// ctx.clearRect(0, 0, canvas.width, canvas.height)
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	// if (timestamp !== null) {
+	// }
 	matrix.forEach((row, rowIndex) => {
 		row.forEach((px) => {
 			// Update px color
