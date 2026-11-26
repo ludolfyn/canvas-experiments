@@ -53,6 +53,12 @@ function setControls(data) {
 		if (dataKey === 'flameHeight') {
 			input.setAttribute('max', (canvas.height - data.flamePosY) / data.pxSize)
 		}
+		if (dataKey === 'flamePosX') {
+			input.setAttribute('max', canvas.width - data.flameWidth * data.pxSize)
+		}
+		if (dataKey === 'flamePosY') {
+			input.setAttribute('max', canvas.height - data.flameHeight * data.pxSize)
+		}
 	})
 }
 

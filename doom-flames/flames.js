@@ -1,3 +1,24 @@
+class Flame {
+	pxSize = 4
+	flamePosX = 100
+	flamePosY = 0
+	flameHeight = 100
+	flameWidth = 100
+	fps = 0
+	windSpeed = 0
+	color = '#ffa500'
+	decayRate = 1.55
+	showMatrix = false
+	flickeringFlame = false
+
+	constructor(options) {
+		if (!options) return
+		for (let [key, val] of Object.entries(options)) {
+			this[key] = val
+		}
+	}
+}
+
 class Pixel {
 	posX = 0
 	posY = 0
@@ -28,9 +49,10 @@ class Pixel {
 			flamePosY,
 			flameHeight,
 			flameWidth,
-			decayRate
+			decayRate,
+			flickeringFlame
 		} = flameOptions
-		const gradientStepsAmount = Math.floor(flameHeight / pxSize - decayRate)
+		const gradientStepsAmount = Math.floor(flameHeight / pxSize) //Math.floor(flameHeight / pxSize - decayRate)
 
 		this.posX = posX
 		this.posY = posY
@@ -53,12 +75,13 @@ class Pixel {
 		this.flameEdgeRight = this.flamePosX + this.flameWidth
 		this.middleOfFlame = this.flamePosX + Math.floor(this.flameWidth / 2)
 		this.decayRate = decayRate
+		this.flickeringFlame = flickeringFlame
 	}
 
 	updateColor(matrix) {
 		const last = this.colorGradient.length - 1
 		const shouldUpddate = Math.floor(Math.random() * 3) - 1
-		const flameOffsetForWindOverReach = (this.flameWidth / 2) * this.windSpeed //this.flameWidth / matrix[0].pxSize
+		const flameOffsetForWindOverReach = (this.flameWidth / 4) * this.windSpeed //this.flameWidth / matrix[0].pxSize
 
 		const grabColorIndexFromBelow = () => {
 			const minusOneToOne = Math.floor(Math.random() * 3) - 1
@@ -74,7 +97,7 @@ class Pixel {
 			return cooledIndex
 		}
 
-		if (shouldUpddate < 1) {
+		if (!this.flickeringFlame && shouldUpddate < 1) {
 			return
 		}
 
@@ -251,4 +274,4 @@ function initCanvas(matrix, flameOptions) {
 	runGameLoop(null, canvas, matrix, flameOptions)
 }
 
-export { Pixel, genMatrix, initCanvas, runGameLoop, stopGameLoop }
+export { Flame, Pixel, genMatrix, initCanvas, runGameLoop, stopGameLoop }
