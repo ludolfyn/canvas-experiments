@@ -31,6 +31,26 @@ function initModalDrag(modal) {
 	})
 }
 
+function setControls(data) {
+	const canvas = document.querySelector('canvas')
+	const inputBlocks = document.querySelectorAll('.controls .input-wrap')
+	inputBlocks.forEach((block) => {
+		const labelAmount = block.querySelector('label span')
+		const input = block.querySelector('input')
+		const dataKey = input.dataset.key
+
+		labelAmount.innerText = data[dataKey]
+		input.value = data[dataKey]
+
+		if (dataKey === 'flameWidth') {
+			input.setAttribute('max', (canvas.width - data.flamePosX) / data.pxSize)
+		}
+		if (dataKey === 'flameHeight') {
+			input.setAttribute('max', (canvas.height - data.flamePosY) / data.pxSize)
+		}
+	})
+}
+
 function resetControls(genMatrix) {
 	// window.flameOptions = {
 	// 	pxSize: 4,
@@ -45,4 +65,4 @@ function resetControls(genMatrix) {
 	window.location.reload()
 }
 
-export { initModalDrag, resetControls }
+export { initModalDrag, setControls, resetControls }

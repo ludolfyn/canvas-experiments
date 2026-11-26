@@ -14,8 +14,23 @@ class Pixel {
 	currentCol = 1
 
 	constructor(flameOptions) {
-		const { posX, posY, pxSize, rowIndex, colIndex, rowsAmount, colsAmount, color, windSpeed } = flameOptions
-		const gradientStepsAmount = rowsAmount - 20
+		const {
+			posX,
+			posY,
+			pxSize,
+			rowIndex,
+			colIndex,
+			rowsAmount,
+			colsAmount,
+			color,
+			windSpeed,
+			flamePosX,
+			flamePosY,
+			flameHeight,
+			flameWidth,
+			decayRate
+		} = flameOptions
+		const gradientStepsAmount = Math.floor(flameHeight / pxSize - decayRate)
 
 		this.posX = posX
 		this.posY = posY
@@ -30,17 +45,26 @@ class Pixel {
 		this.currentColor = this.colorGradient[this.colorIndex]
 		this.rowsAmount = rowsAmount
 		this.colsAmount = colsAmount
+		this.flamePosX = flamePosX
+		this.flamePosY = flamePosY
+		this.flameHeight = flameHeight
+		this.flameWidth = flameWidth
+		this.flameEdgeLeft = this.flamePosX
+		this.flameEdgeRight = this.flamePosX + this.flameWidth
+		this.middleOfFlame = this.flamePosX + Math.floor(this.flameWidth / 2)
+		this.decayRate = decayRate
 	}
 
 	updateColor(matrix) {
 		const last = this.colorGradient.length - 1
 		const shouldUpddate = Math.floor(Math.random() * 3) - 1
-		const matrixOffsetSides = (this.colsAmount / 6) * this.windSpeed
+		const flameOffsetForWindOverReach = (this.flameWidth / 2) * this.windSpeed //this.flameWidth / matrix[0].pxSize
+
 		const grabColorIndexFromBelow = () => {
 			const minusOneToOne = Math.floor(Math.random() * 3) - 1
 			const offsetRange = !minusOneToOne ? 3 : 3 + this.windSpeed
 
-			const decay = Math.floor(Math.random() * 3)
+			const decay = Math.floor(Math.random() * this.decayRate)
 			const offset = Math.floor(Math.random() * offsetRange) - 1
 			const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
 
@@ -50,12 +74,17 @@ class Pixel {
 			return cooledIndex
 		}
 
-		// Create offset on side of matrix
-		if (this.currentCol < matrixOffsetSides && this.windSpeed) {
+		if (shouldUpddate < 1) {
+			return
+		}
+
+		//this.currentCol < flameOffsetForWindOverReach
+		if (this.currentCol < flameOffsetForWindOverReach) {
+			// Create offset on side of matrix
 			if (!this.windSpeed) {
 				// Fill offset pixels with black (if no wind)
 				this.colorIndex = last
-			} else if (shouldUpddate >= 1) {
+			} else {
 				// Fill offset with continuation of flame
 				const cooledIndex = grabColorIndexFromBelow()
 				this.colorIndex = Math.min(cooledIndex, last)
@@ -65,7 +94,11 @@ class Pixel {
 			return
 		}
 
-		// if (this.currentCol > this.colsAmount - matrixOffsetSides) {
+		if (this.posX < (this.pxSize * this.colsAmount) / 4) {
+		}
+
+		// Offset on the other side
+		// if (this.currentCol > this.colsAmount - flameOffsetForWindOverReach) {
 		// 	this.colorIndex = this.colorGradient.length - 1
 		// 	this.currentColor = this.colorGradient[this.colorIndex]
 		// 	return
@@ -73,9 +106,6 @@ class Pixel {
 
 		// 1/3 chance for the pixel to update
 		// to make flame grow slower and create sparks
-		if (shouldUpddate < 1) {
-			return
-		}
 
 		// If in first row (bottom)
 		if (this.currentRow === 1) {
@@ -129,20 +159,24 @@ class Pixel {
 	}
 }
 
-function genMatrix(matrixOptions) {
+function genMatrix(flameOptions) {
 	const matrix = []
-	const { pxSize, rowsAmount, colsAmount, startPos } = matrixOptions
+	const { pxSize, flamePosX, flamePosY, flameWidth, flameHeight } = flameOptions
 	const canvas = document.querySelector('canvas')
+	const colsAmount = Math.floor(flameWidth)
+	const rowsAmount = Math.floor(flameHeight)
 
 	for (let rowIndex = 0; rowIndex < rowsAmount; rowIndex++) {
 		const row = []
 		for (let colIndex = 0; colIndex < colsAmount; colIndex++) {
-			const posX = pxSize * colIndex + startPos
-			const posY = pxSize * rowIndex
+			const posX = pxSize * colIndex + flamePosX
+			const posY = pxSize * rowIndex + flamePosY
 			flameOptions.posX = posX
 			flameOptions.posY = posY
 			flameOptions.rowIndex = rowIndex
 			flameOptions.colIndex = colIndex
+			flameOptions.rowsAmount = rowsAmount
+			flameOptions.colsAmount = colsAmount
 			const pixel = new Pixel(flameOptions)
 
 			row.push(pixel)
@@ -154,7 +188,7 @@ function genMatrix(matrixOptions) {
 }
 
 let lastTime = 0
-function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
+function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 0 }) {
 	// if (timestamp > 500) {
 	// 	stopGameLoop()
 	// 	return
@@ -177,7 +211,7 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 10 }) {
 
 	const ctx = canvas.getContext('2d')
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
-	// if (timestamp !== null) {
+	// if (timestamp === null) {
 	// }
 	matrix.forEach((row, rowIndex) => {
 		row.forEach((px) => {

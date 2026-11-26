@@ -1,18 +1,21 @@
-import { initModalDrag, resetControls } from './controls.js'
+import { initModalDrag, setControls, resetControls } from './controls.js'
 import { genMatrix, initCanvas, runGameLoop } from './flames.js'
 
 // --- Flames ---
 window.flameOptions = {
 	pxSize: 4,
-	rowsAmount: 128,
-	colsAmount: 256,
-	startPos: 0,
+	flamePosX: 100,
+	flamePosY: 100,
+	flameHeight: 100,
+	flameWidth: 100,
 	fps: 0,
-	windSpeed: 2,
-	color: '#ffa500'
+	windSpeed: 0,
+	color: '#ffa500',
+	decayRate: 1.7
 }
 window.matrix = genMatrix(window.flameOptions) // Light fire
 initCanvas(window.matrix, window.flameOptions) // Burn
+setControls(window.flameOptions)
 
 // --- App ---
 const controls = document.querySelector('.controls')
