@@ -14,6 +14,8 @@ body {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
+	top: 40px;
+	right: 40px;
 	z-index: 1;
 	overflow: hidden;
 	cursor: grab;
@@ -108,6 +110,6 @@ body {
 		display: block;
 		image-rendering: pixelated;
 		border: 2px solid rgb(83, 72, 72);
-		transform: rotate(180deg);
+		transform: rotate(180deg) scaleX(-1);
 	}
 }
