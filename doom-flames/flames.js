@@ -223,9 +223,11 @@ function runGameLoop(timestamp, canvas, matrix, flameOptions = { fps: 0 }) {
 			ctx.fillRect(px.posX, px.posY, px.width, px.height)
 
 			// border
-			// ctx.strokeStyle = '#ffffff'
-			// ctx.lineWidth = 0.2
-			// ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
+			if (flameOptions.showMatrix) {
+				ctx.strokeStyle = '#ffffff'
+				ctx.lineWidth = 0.2
+				ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
+			}
 		})
 	})
 }

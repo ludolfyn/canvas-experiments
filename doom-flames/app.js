@@ -11,7 +11,8 @@ window.flameOptions = {
 	fps: 0,
 	windSpeed: 0,
 	color: '#ffa500',
-	decayRate: 1.7
+	decayRate: 1.7,
+	showMatrix: false
 }
 window.matrix = genMatrix(window.flameOptions) // Light fire
 initCanvas(window.matrix, window.flameOptions) // Burn
@@ -29,13 +30,14 @@ controlsInputs.forEach((input) => {
 		valueElem.innerText = event.currentTarget.value
 	})
 	input.addEventListener('change', (event) => {
-		const value = event.currentTarget.value
+		const inputElem = event.currentTarget
+		const value = inputElem.type === 'checkbox' ? inputElem.checked : inputElem.value
 		const computedValue = isNaN(value) ? value : Number(value)
 		window.flameOptions[key] = computedValue
 		window.matrix = genMatrix(window.flameOptions) // Light fire
 		// initCanvas(window.matrix, window.flameOptions)
 
-		valueElem.innerText = event.currentTarget.value
+		valueElem.innerText = value
 	})
 })
 resetBtn.addEventListener('click', (event) => {

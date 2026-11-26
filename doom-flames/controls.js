@@ -40,7 +40,12 @@ function setControls(data) {
 		const dataKey = input.dataset.key
 
 		labelAmount.innerText = data[dataKey]
-		input.value = data[dataKey]
+
+		if (input.type === 'checkbox') {
+			input.checked = data[dataKey]
+		} else {
+			input.value = data[dataKey]
+		}
 
 		if (dataKey === 'flameWidth') {
 			input.setAttribute('max', (canvas.width - data.flamePosX) / data.pxSize)

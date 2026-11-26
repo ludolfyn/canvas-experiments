@@ -61,8 +61,19 @@ body {
 .controls .input-wrap:first-child label {
   margin-top: 0px;
 }
-.controls .input-wrap:last-child label {
+.controls .input-wrap.color-wrap label {
   margin-bottom: 4px;
+}
+.controls .input-wrap.checkbox-wrap {
+  margin-top: 4px;
+  align-items: flex-start;
+}
+.controls .input-wrap.checkbox-wrap label {
+  margin-bottom: 2px;
+}
+.controls .input-wrap.checkbox-wrap input {
+  height: 20px;
+  width: 20px;
 }
 .controls .input-wrap input {
   cursor: pointer;
