@@ -7,7 +7,7 @@ class Flame {
 	fps = 0
 	windSpeed = 0
 	color = '#ffa500'
-	decayRate = 1.55
+	decayRate = 2.2
 	showMatrix = false
 	flickeringFlame = false
 	flameEdgeLeft = this.flamePosX
@@ -40,7 +40,7 @@ class Flame {
 	}
 
 	initNewGradient() {
-		const gradientStepsAmount = Math.floor(this.flameHeight / this.pxSize)
+		const gradientStepsAmount = Math.floor(this.decayRate * (this.flameHeight / this.decayRate / this.decayRate))
 		this.colorGradient = this.genGradient(this.color, gradientStepsAmount)
 	}
 
