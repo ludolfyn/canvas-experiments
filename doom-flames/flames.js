@@ -25,9 +25,23 @@ class Flame {
 		this.flameEdgeRight = this.flamePosX + this.flameWidth
 		this.middleOfFlame = this.flamePosX + Math.floor(this.flameWidth / 2)
 
+		this.initNewGradient()
+		console.log(this)
+	}
+
+	set(key, val) {
+		this[key] = val
+
+		if (['flameHeight', 'decayRate'].includes(key)) {
+			this.initNewGradient()
+		}
+
+		console.log(this.colorGradient.length)
+	}
+
+	initNewGradient() {
 		const gradientStepsAmount = Math.floor(this.flameHeight / this.pxSize)
 		this.colorGradient = this.genGradient(this.color, gradientStepsAmount)
-		console.log(this)
 	}
 
 	genGradient(colorHex, stepsAmount) {

@@ -32,7 +32,7 @@ function initModalDrag(modal) {
 }
 
 function initFlameDrag(canvas, genMatrix, initCanvas) {
-	let flame = window.flameOptions
+	let flame = window.flame
 	let matrix = window.matrix
 	let dragging = false
 
@@ -76,7 +76,7 @@ function initFlameDrag(canvas, genMatrix, initCanvas) {
 
 		matrix = genMatrix(flame) // Light fire
 		const canvas = initCanvas(matrix, flame)
-		setControls(window.flameOptions)
+		setControls(window.flame)
 	})
 
 	canvas.addEventListener('mouseup', () => {
@@ -120,7 +120,7 @@ function setControls(data) {
 }
 
 function resetControls(genMatrix) {
-	// window.flameOptions = {
+	// window.flame = {
 	// 	pxSize: 4,
 	// 	rowsAmount: 128,
 	// 	colsAmount: 256,
@@ -129,7 +129,7 @@ function resetControls(genMatrix) {
 	// 	windSpeed: 2,
 	// 	color: '#ffa500'
 	// }
-	// window.matrix = genMatrix(window.flameOptions)
+	// window.matrix = genMatrix(window.flame)
 	window.location.reload()
 }
 
