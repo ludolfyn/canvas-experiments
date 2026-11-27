@@ -31,9 +31,64 @@ function initModalDrag(modal) {
 	})
 }
 
+function initFlameDrag(canvas, genMatrix, initCanvas) {
+	let flame = window.flameOptions
+	let matrix = window.matrix
+	let dragging = false
+
+	const viewportWidth = window.innerWidth
+	const viewportHeight = window.innerHeight
+
+	let rect = canvas.getBoundingClientRect()
+	let canvasPosX = rect.left
+	let canvasPosY = rect.top
+	let flameHalfX = (flame.flameWidth * flame.pxSize) / 2
+	let flameHalfY = (flame.flameHeight * flame.pxSize) / 2
+
+	canvas.addEventListener('mousedown', (e) => {
+		const clickedOnFlameX =
+			e.clientX - canvasPosX >= flame.flamePosX &&
+			e.clientX - canvasPosX <= flame.flamePosX + flame.flameWidth * flame.pxSize
+		const mouseY = viewportHeight - e.clientY - canvasPosY
+		const clickedOnFlameY =
+			mouseY >= flame.flamePosY && mouseY <= flame.flamePosY + flame.flameHeight * flame.pxSize
+		console.log(viewportHeight - e.clientY - canvasPosY, flame.flamePosY)
+
+		if (!clickedOnFlameX || !clickedOnFlameY) return
+
+		console.log('hit')
+
+		rect = canvas.getBoundingClientRect()
+		canvasPosX = rect.left
+		canvasPosY = rect.top
+		flameHalfX = (flame.flameWidth * flame.pxSize) / 2
+		flameHalfY = (flame.flameHeight * flame.pxSize) / 2
+
+		dragging = true
+		canvas.classList.add('dragging')
+	})
+
+	document.addEventListener('mousemove', (e) => {
+		if (!dragging) return
+
+		flame.flamePosX = e.clientX - canvasPosX - flameHalfX
+		flame.flamePosY = viewportHeight - e.clientY - canvasPosY - 20
+
+		matrix = genMatrix(flame) // Light fire
+		const canvas = initCanvas(matrix, flame)
+		setControls(window.flameOptions)
+	})
+
+	canvas.addEventListener('mouseup', () => {
+		dragging = false
+		canvas.classList.remove('dragging')
+	})
+}
+
 function setControls(data) {
 	const canvas = document.querySelector('canvas')
-	const inputBlocks = document.querySelectorAll('.controls .input-wrap')
+	const controls = document.querySelector('.controls')
+	const inputBlocks = controls.querySelectorAll('.input-wrap')
 	inputBlocks.forEach((block) => {
 		const labelAmount = block.querySelector('label span')
 		const input = block.querySelector('input')
@@ -60,6 +115,8 @@ function setControls(data) {
 			input.setAttribute('max', canvas.height - data.flameHeight * data.pxSize)
 		}
 	})
+
+	return controls
 }
 
 function resetControls(genMatrix) {
@@ -76,4 +133,4 @@ function resetControls(genMatrix) {
 	window.location.reload()
 }
 
-export { initModalDrag, setControls, resetControls }
+export { initModalDrag, initFlameDrag, setControls, resetControls }

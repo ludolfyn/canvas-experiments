@@ -92,4 +92,8 @@ body {
   image-rendering: pixelated;
   border: 2px solid rgb(83, 72, 72);
   transform: rotate(180deg) scaleX(-1);
+  cursor: grab;
+}
+.canvas-wrap canvas#c.dragging {
+  cursor: grabbing;
 }/*# sourceMappingURL=app.css.map */

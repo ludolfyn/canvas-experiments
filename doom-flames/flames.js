@@ -1,11 +1,11 @@
 class Flame {
 	pxSize = 4
-	flamePosX = 0
+	flamePosX = 100
 	flamePosY = 0
 	flameHeight = 100
-	flameWidth = 256
+	flameWidth = 100
 	fps = 0
-	windSpeed = 1
+	windSpeed = 0
 	color = '#ffa500'
 	decayRate = 1.55
 	showMatrix = false
@@ -127,7 +127,8 @@ class Pixel {
 
 	grabColorIndexFromBelow(matrix) {
 		const last = this.colorGradient.length - 1
-		const offsetRange = Math.random() < 1 / 3 ? 3 : Math.max(1, 3 - this.windSpeed)
+		const onInThreeChanceHit = Math.random() < 1 / 3
+		const offsetRange = onInThreeChanceHit ? 3 : Math.max(0, 3 - this.windSpeed)
 
 		const decay = Math.floor(Math.random() * this.decayRate)
 		const offset = Math.floor(Math.random() * offsetRange) - 1
@@ -139,8 +140,38 @@ class Pixel {
 
 function runGameLoop(canvas, getMatrix, getFlameOptions) {
 	const ctx = canvas.getContext('2d')
+	ctx.imageSmoothingEnabled = false
+
+	const offscreen = document.createElement('canvas')
+	const offscreenCtx = offscreen.getContext('2d')
+
+	// Used only to convert any CSS color string to RGBA
+	const colorCtx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+	colorCtx.canvas.width = 1
+	colorCtx.canvas.height = 1
+	const colorCache = new Map()
+
 	let lastTime = 0
-	let lastFill = null
+	let imageData = null
+	let buffer32 = null
+	let rowsAmount = 0
+	let colsAmount = 0
+	let originX = 0
+	let originY = 0
+
+	function toUint32(color) {
+		let value = colorCache.get(color)
+		if (value === undefined) {
+			colorCtx.clearRect(0, 0, 1, 1)
+			colorCtx.fillStyle = color
+			colorCtx.fillRect(0, 0, 1, 1)
+			const [r, g, b, a] = colorCtx.getImageData(0, 0, 1, 1).data
+			// Little-endian ABGR
+			value = ((a << 24) | (b << 16) | (g << 8) | r) >>> 0
+			colorCache.set(color, value)
+		}
+		return value
+	}
 
 	function frame(timestamp) {
 		window.gameLoopId = requestAnimationFrame(frame)
@@ -155,11 +186,25 @@ function runGameLoop(canvas, getMatrix, getFlameOptions) {
 		lastTime = interval ? timestamp - (delta % interval) : timestamp
 
 		const matrix = getMatrix()
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-		if (flameOptions.showMatrix) {
-			ctx.strokeStyle = '#ffffff'
-			ctx.lineWidth = 0.2
+		// (Re)create the buffer if the matrix size changed
+		if (matrix.length !== rowsAmount || matrix[0].length !== colsAmount) {
+			rowsAmount = matrix.length
+			colsAmount = matrix[0].length
+			offscreen.width = colsAmount
+			offscreen.height = rowsAmount
+			imageData = offscreenCtx.createImageData(colsAmount, rowsAmount)
+			buffer32 = new Uint32Array(imageData.data.buffer)
+
+			// Top-left corner of the grid on the canvas
+			originX = Infinity
+			originY = Infinity
+			for (const row of matrix) {
+				for (const px of row) {
+					originX = Math.min(originX, px.posX)
+					originY = Math.min(originY, px.posY)
+				}
+			}
 		}
 
 		for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
@@ -170,14 +215,27 @@ function runGameLoop(canvas, getMatrix, getFlameOptions) {
 				// Update px color
 				px.updateColor(matrix)
 
-				if (px.currentColor !== lastFill) {
-					ctx.fillStyle = px.currentColor
-					lastFill = px.currentColor
-				}
-				ctx.fillRect(px.posX, px.posY, px.width, px.height)
+				// One buffer pixel per matrix pixel
+				const x = Math.round((px.posX - originX) / px.width)
+				const y = Math.round((px.posY - originY) / px.height)
+				buffer32[y * colsAmount + x] = toUint32(px.currentColor)
+			}
+		}
 
-				// border
-				if (flameOptions.showMatrix) {
+		offscreenCtx.putImageData(imageData, 0, 0)
+
+		const first = matrix[0][0]
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.drawImage(offscreen, originX, originY, colsAmount * first.width, rowsAmount * first.height)
+
+		// border
+		if (flameOptions.showMatrix) {
+			ctx.strokeStyle = '#ffffff'
+			ctx.lineWidth = 0.2
+			for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
+				const row = matrix[rowIndex]
+				for (let colIndex = 0; colIndex < row.length; colIndex++) {
+					const px = row[colIndex]
 					ctx.strokeRect(px.posX + 0.5, px.posY + 0.5, px.width - 1, px.height - 1)
 				}
 			}
@@ -218,12 +276,12 @@ function genMatrix(flameOptions) {
 		}
 		matrix.push(row)
 	}
-	console.log(matrix)
+	// console.log(matrix)
 	return matrix
 }
 
 function initCanvas(matrix, flameOptions) {
-	console.log('starting loop')
+	// console.log('starting loop')
 
 	stopGameLoop()
 
@@ -236,6 +294,8 @@ function initCanvas(matrix, flameOptions) {
 		() => matrix,
 		() => flameOptions
 	)
+
+	return canvas
 }
 
 export { Flame, Pixel, genMatrix, initCanvas, runGameLoop, stopGameLoop }

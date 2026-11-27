@@ -1,14 +1,14 @@
-import { initModalDrag, setControls, resetControls } from './controls.js'
+import { initModalDrag, setControls, resetControls, initFlameDrag } from './controls.js'
 import { Flame, genMatrix, initCanvas, runGameLoop } from './flames.js'
 
 // --- Flames ---
 window.flameOptions = new Flame()
 window.matrix = genMatrix(window.flameOptions) // Light fire
-initCanvas(window.matrix, window.flameOptions) // Burn
-setControls(window.flameOptions)
+const canvas = initCanvas(window.matrix, window.flameOptions) // Burn
+initFlameDrag(canvas, genMatrix, initCanvas)
 
 // --- App ---
-const controls = document.querySelector('.controls')
+const controls = setControls(window.flameOptions)
 const resetBtn = controls.querySelector('#reset-controls')
 const controlsInputs = controls.querySelectorAll('input')
 initModalDrag(controls)
