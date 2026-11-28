@@ -1,9 +1,9 @@
 class Flame {
 	pxSize = 4
-	flamePosX = 100
+	flamePosX = 50
 	flamePosY = 0
 	flameHeight = 100
-	flameWidth = 100
+	flameWidth = 230
 	fps = 0
 	windSpeed = 0
 	color = '#ffa500'
@@ -13,6 +13,7 @@ class Flame {
 	flameEdgeLeft = this.flamePosX
 	flameEdgeRight = this.flamePosX + this.flameWidth
 	middleOfFlame = this.flamePosX + Math.floor(this.flameWidth / 2)
+	taperSides = true
 
 	constructor(options) {
 		options = options ?? {}
@@ -136,6 +137,10 @@ class Pixel {
 			this.colorIndex = Math.min(this.grabColorIndexFromBelow(matrix), last)
 		}
 
+		if (this.taperSides) {
+			this.colorIndex = this.taperFlameEdgePixels()
+		}
+
 		this.currentColor = this.colorGradient[this.colorIndex]
 	}
 
@@ -149,6 +154,28 @@ class Pixel {
 		const below = matrix[this.currentRow - 2]?.[this.currentCol - 1 + offset]
 
 		return (below?.colorIndex ?? last) + decay
+	}
+
+	taperFlameEdgePixels(edgeWidth = 12) {
+		const last = this.colorGradient.length - 1
+		const iterations = 4
+		let flameEdge = edgeWidth
+		let randomness = 3
+		let colorIndex = this.colorIndex
+
+		for (let i = 0; i < iterations; i++) {
+			flameEdge = i ? flameEdge * 2 : flameEdge
+			randomness = i ? randomness / 2 : randomness
+
+			if (this.currentCol < this.flameWidth / flameEdge && Math.random() < 1 / randomness) {
+				colorIndex = Math.min(this.colorIndex + 1, last)
+			}
+			if (this.currentCol > this.flameWidth - this.flameWidth / flameEdge && Math.random() < 1 / randomness) {
+				colorIndex = Math.min(this.colorIndex + 1, last)
+			}
+		}
+
+		return colorIndex
 	}
 }
 
