@@ -52,11 +52,8 @@ function initFlameDrag(canvas, genMatrix, initCanvas) {
 		const mouseY = viewportHeight - e.clientY - canvasPosY
 		const clickedOnFlameY =
 			mouseY >= flame.flamePosY && mouseY <= flame.flamePosY + flame.flameHeight * flame.pxSize
-		console.log(viewportHeight - e.clientY - canvasPosY, flame.flamePosY)
 
 		if (!clickedOnFlameX || !clickedOnFlameY) return
-
-		console.log('hit')
 
 		rect = canvas.getBoundingClientRect()
 		canvasPosX = rect.left

@@ -7,7 +7,7 @@ class Flame {
 	fps = 0
 	windSpeed = 0
 	color = '#ffa500'
-	decayRate = 2.2
+	decayRate = 2.15
 	showMatrix = false
 	flickeringFlame = false
 	flameEdgeLeft = this.flamePosX
@@ -32,11 +32,11 @@ class Flame {
 	set(key, val) {
 		this[key] = val
 
-		if (['flameHeight', 'decayRate'].includes(key)) {
+		if (['flameHeight', 'decayRate', 'color'].includes(key)) {
 			this.initNewGradient()
 		}
 
-		console.log(this.colorGradient.length)
+		console.log(key, val)
 	}
 
 	initNewGradient() {

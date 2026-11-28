@@ -31,7 +31,6 @@ controlsInputs.forEach((input) => {
 		}
 
 		setControls(window.flame)
-
 		// valueElem.innerText = value
 	})
 })
